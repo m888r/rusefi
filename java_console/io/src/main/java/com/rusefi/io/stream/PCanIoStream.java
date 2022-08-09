@@ -66,10 +66,33 @@ public class PCanIoStream extends AbstractIoStream {
             return null;
         }
         statusListener.append("Hello PCAN!");
-        return new PCanIoStream(can, statusListener);
+        PCanIoStream stream = new PCanIoStream(can, statusListener);
+        stream.startUdsThread();
+        return stream;
     }
 
-    private void sendCanPacket(byte[] payLoad) {
+    private void startUdsThread() {
+        new Thread(() -> {
+            byte[] payLoad = {0x02, 0x3E, (byte) 0x80, 0x00, 0x00, 0x00, 0x00, 0x00 };
+            while (!isClosed()) {
+                TPCANMsg msg = new TPCANMsg( 0x7DF, PCAN_MESSAGE_STANDARD.getValue(),
+                        (byte) payLoad.length, payLoad);
+                TPCANStatus status = can.Write(CHANNEL, msg);
+                if (status != TPCANStatus.PCAN_ERROR_OK) {
+                    statusListener.append("Unable to write the CAN message: " + status);
+                    System.exit(0);
+                }
+
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).start();
+    }
+
+    private synchronized void sendCanPacket(byte[] payLoad) {
         if (log.debugEnabled())
             log.debug("-------sendIsoTp " + payLoad.length + " byte(s):");
 
