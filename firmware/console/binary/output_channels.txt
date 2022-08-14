@@ -327,8 +327,6 @@ uint16_t rpmAcceleration;dRPM;"RPM/s",1, 0, 0, 5, 0
     float injectorFlowPressureDelta;;"kPa", 1, 0, -10000, 10000, 1
 
 	pid_status_s alternatorStatus
-	pid_status_s idleStatus
-	pid_status_s etbStatus
 	pid_status_s boostStatus
 
 	uint16_t auxSpeed1;aux speed 1;"s",1, 0, 0, 0, 0
