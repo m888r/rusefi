@@ -989,7 +989,8 @@ static void calculateTriggerSynchPoint(
 }
 
 void TriggerCentral::updateWaveform() {
-	static TriggerDecoderBase initState("init");
+    // protect decoders incoming events
+    chibios_rt::CriticalSectionLocker csl;
 
 	// Re-read config in case it's changed
 	primaryTriggerConfiguration.update();
@@ -1028,13 +1029,9 @@ void TriggerCentral::updateWaveform() {
 
 		triggerErrorDetection.clear();
 
-		/**
-	 	 * 'initState' instance of TriggerDecoderBase is used only to initialize 'this' TriggerWaveform instance
-	 	 * #192 BUG real hardware trigger events could be coming even while we are initializing trigger
-	 	 */
 		calculateTriggerSynchPoint(primaryTriggerConfiguration,
 				triggerShape,
-				initState);
+				triggerState);
 	}
 
 	for (int camIndex = 0; camIndex < CAMS_PER_BANK; camIndex++) {
@@ -1043,7 +1040,7 @@ void TriggerCentral::updateWaveform() {
 			initVvtShape(
 				vvtShape[camIndex],
 				vvtTriggerConfiguration[camIndex],
-				initState
+				vvtState[0][camIndex]
 			);
 		}
 	}
