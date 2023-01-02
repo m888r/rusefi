@@ -27,7 +27,7 @@ pins:
     class: outputs
     color: black
     function: VVT
-    ts_name: 7 - Lowside 1
+    ts_name: ___ - Lowside 1
     type: ls
 
   # TC4427 ignition outputs (5v)
@@ -36,7 +36,7 @@ pins:
     class: outputs
     color: dark blue
     function: Ignition 1
-    ts_name: 9 - Ignition 1
+    ts_name: ___ - Ignition 1
     type: ign
 
   - pin: 10
