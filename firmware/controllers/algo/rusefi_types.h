@@ -127,6 +127,7 @@ using script_setting_t = float;
 
 using brain_input_pin_e = brain_pin_e;
 using switch_input_pin_e = brain_pin_e;
+using sent_input_pin_e = brain_pin_e;
 using output_pin_e = brain_pin_e;
 
 typedef void (*VoidPtr)(void*);
