@@ -1,3 +1,5 @@
+import java.nio.file.Files
+
 plugins {
     id 'java'
     id 'com.github.johnrengelman.shadow' version '6.1.0'
@@ -22,6 +24,52 @@ dependencies {
 
     testImplementation global_libs.mockito
     testImplementation testFixtures(project(':ecu_io'))
+}
+
+task copy_c_files {
+    def names = []
+    java.nio.file.Path dest = java.nio.file.Paths.get("build/classes/c_sources")
+
+    Closure visitor = { FileVisitDetails details ->
+        if (details.file.path.endsWith(".cpp")) {
+            println details.file.path
+            names << details.file.path
+
+            java.nio.file.Path src = java.nio.file.Paths.get(details.file.path)
+
+            Files.copy(src, dest)
+        }
+    }
+
+    fileTree("../../firmware/controllers/").visit visitor
+    fileTree("../../firmware/console/").visit visitor
+    println names
+
+    copy {
+        into "build/classes/c_sources"
+        include "**/../../firmware/controllers/*.*"
+
+        // Flatten the hierarchy by setting the path
+        // of all files to their respective basename
+        eachFile {
+            println path
+            path = name
+        }
+
+        // Flattening the hierarchy leaves empty directories,
+        // do not copy those
+        includeEmptyDirs = false
+    }
+
+    println fileTree(".").include("**/../*.cpp").files
+    copy {
+        from fileTree(".").include("**/../../firmware/controllers/*.cpp").files
+        into "build/classes/c_sources"
+    }
+    copy {
+        from fileTree("../../firmware").include("**/../../firmware/console/*.cpp").files
+        into "build/classes/c_sources"
+    }
 }
 
 shadowJar {
